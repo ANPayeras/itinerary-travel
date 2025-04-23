@@ -63,7 +63,26 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.dot-animation {
+  animation: bounce 0.5s infinite alternate;
+}
+
+.dot-animation:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.dot-animation:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+@keyframes bounce {
+  100% {
+    translate: 0 -10px;
   }
 }

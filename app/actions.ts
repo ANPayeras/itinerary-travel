@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Itineraries, Itinerary } from "@/lib/types";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -15,7 +16,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email and password are required",
+      "Email and password are required"
     );
   }
 
@@ -34,7 +35,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "success",
       "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link.",
+      "Thanks for signing up! Please check your email for a verification link."
     );
   }
 };
@@ -75,7 +76,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Could not reset password",
+      "Could not reset password"
     );
   }
 
@@ -86,7 +87,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/forgot-password",
-    "Check your email for a link to reset your password.",
+    "Check your email for a link to reset your password."
   );
 };
 
@@ -100,7 +101,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/protected/reset-password",
-      "Password and confirm password are required",
+      "Password and confirm password are required"
     );
   }
 
@@ -108,7 +109,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/protected/reset-password",
-      "Passwords do not match",
+      "Passwords do not match"
     );
   }
 
@@ -120,7 +121,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/protected/reset-password",
-      "Password update failed",
+      "Password update failed"
     );
   }
 
@@ -131,4 +132,212 @@ export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
   return redirect("/sign-in");
+};
+
+export const addItineraryAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const date = formData.get("date")?.toString();
+  const ISODate = new Date(date!).toISOString();
+  const [year, month, day] = ISODate.split("T")[0].split("-");
+  const parseDate = `${day}/${month}/${year.slice(-2)}`;
+
+  const description = formData.get("description")?.toString();
+  const link = formData.get("link")?.toString();
+
+  try {
+    await supabase.from("itineraries").insert({
+      date: parseDate,
+      description,
+      link,
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getItinerariesAction = async () => {
+  const supabase = await createClient();
+
+  try {
+    const { data } = await supabase
+      .from("itineraries")
+      .select()
+      .order("date", { ascending: true });
+
+    const dbItineraries = data as Itinerary[];
+
+    let itineraries: Itineraries[] = [];
+
+    dbItineraries?.forEach((i) => {
+      const existDate = itineraries.find(
+        (itinerary) => itinerary.date === i.date
+      );
+      if (existDate) {
+        const index = itineraries.findIndex(
+          (itinerary) => itinerary.date === existDate.date
+        );
+        itineraries[index].itineraries.push(i);
+      } else {
+        itineraries.push({
+          date: i.date,
+          itineraries: [{ ...i }],
+        });
+      }
+    });
+
+    return itineraries;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deleteItineraryAction = async (id: number) => {
+  const supabase = await createClient();
+
+  try {
+    await supabase.from("itineraries").delete().eq("id", id);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const editItineraryAction = async (formData: FormData, id: number) => {
+  const supabase = await createClient();
+
+  const date = formData.get("date")?.toString();
+  const ISODate = new Date(date!).toISOString();
+  const [year, month, day] = ISODate.split("T")[0].split("-");
+  const parseDate = `${day}/${month}/${year.slice(-2)}`;
+
+  const description = formData.get("description")?.toString();
+  const link = formData.get("link")?.toString();
+
+  try {
+    await supabase
+      .from("itineraries")
+      .update({
+        date: parseDate,
+        description,
+        link,
+      })
+      .eq("id", id);
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getExpensesAction = async () => {
+  const supabase = await createClient();
+
+  try {
+    const { data } = await supabase.from("expenses").select();
+
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const addExpenseAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const detail = formData.get("detail")?.toString();
+  const amount = formData.get("amount")?.toString();
+
+  try {
+    await supabase.from("expenses").insert({
+      detail,
+      amount,
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+export const editExpensesAction = async (formData: FormData, id: number) => {
+  const supabase = await createClient();
+
+  const detail = formData.get("detail")?.toString();
+  const amount = formData.get("amount")?.toString();
+
+  try {
+    await supabase
+      .from("expenses")
+      .update({
+        detail,
+        amount,
+      })
+      .eq("id", id);
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deleteExpenseAction = async (id: number) => {
+  const supabase = await createClient();
+
+  try {
+    await supabase.from("expenses").delete().eq("id", id);
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getPersonsAction = async () => {
+  const supabase = await createClient();
+
+  try {
+    const { data } = await supabase.from("persons").select();
+
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const addPersonAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const name = formData.get("name")?.toString();
+  const amount = formData.get("amount")?.toString();
+
+  try {
+    await supabase.from("persons").insert({
+      name,
+      amount,
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+export const editPersonsAction = async (formData: FormData, id: number) => {
+  const supabase = await createClient();
+
+  const name = formData.get("name")?.toString();
+  const amount = formData.get("amount")?.toString();
+
+  try {
+    await supabase
+      .from("persons")
+      .update({
+        name,
+        amount,
+      })
+      .eq("id", id);
+  } catch (error) {
+    return error;
+  }
+};
+
+export const deletePersonAction = async (id: number) => {
+  const supabase = await createClient();
+
+  try {
+    await supabase.from("persons").delete().eq("id", id);
+  } catch (error) {
+    return error;
+  }
 };
