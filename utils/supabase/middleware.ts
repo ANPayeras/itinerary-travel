@@ -42,7 +42,8 @@ export const updateSession = async (request: NextRequest) => {
     }
 
     if (request.nextUrl.pathname === "/" && itineraryId) {
-      return NextResponse.redirect(new URL("/protected", request.url));
+      return NextResponse.redirect(new URL(`/protected/${itineraryId.value}`, request.url));
+      // return NextResponse.redirect(new URL("/sign-in", request.url));
     }
 
     return response;
