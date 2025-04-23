@@ -4,8 +4,10 @@ import React, { ReactNode, useState } from 'react'
 import { AnimatePresence, motion } from "framer-motion";
 import Expenses from './expenses';
 import ItinerariesComponent from './itineraries';
+import { useParams } from 'next/navigation';
 
 const Home = () => {
+    const { id } = useParams()
     const [type, setType] = useState('itineraries')
 
     const comp: { [key: string]: ReactNode } = {
@@ -41,8 +43,11 @@ const Home = () => {
 
     return (
         <div className="container px-2 md:px-8 py-8 h-full flex flex-col justify-center max-w-[1000px] gap-5 text-sm md:text-base">
-            <div className="flex justify-between items-center border-b-2 pb-2">
-                <h1>Itinerario - Mallorca 2025</h1>
+            <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between items-center border-b-2 pb-2">
+                <div className='text-center md:text-left'>
+                    <h1>Itinerario - Mallorca 2025</h1>
+                    <h6 className='text-xs'>ID: {id}</h6>
+                </div>
                 <div className="flex justify-center items-center gap-2">
                     <button
                         className='cursor-pointer px-2 py-1 border rounded-sm hover:scale-105 hover:bg-black hover:bg-opacity-35 transition-all'

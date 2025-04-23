@@ -135,9 +135,13 @@ const ItinerariesComponent = () => {
                                                         <td className="flex px-2 py-3 gap-2 bg-slate-900 border-b">
                                                             <div className='flex-1 flex flex-col gap-2'>
                                                                 <span>{first.description}</span>
-                                                                <button className="text-blue-400 cursor-pointer hover:underline transition-all" onClick={() => redirectLink(first.link)}>
-                                                                    Ver más
-                                                                </button>
+                                                                {
+                                                                    first.link ?
+
+                                                                        <button className="text-blue-400 cursor-pointer hover:underline transition-all" onClick={() => redirectLink(first.link)}>
+                                                                            Ver más
+                                                                        </button> : <></>
+                                                                }
                                                             </div>
                                                             <TableControls
                                                                 onDelete={() => deleteItinerary(first.id)}
@@ -151,9 +155,12 @@ const ItinerariesComponent = () => {
                                                                 <td className="flex px-2 py-3 gap-2 bg-slate-900 border-b">
                                                                     <div className='flex-1 flex gap-2'>
                                                                         <span>{it.description}</span>
-                                                                        <button className="text-blue-400 cursor-pointer hover:underline transition-all" onClick={() => redirectLink(it.link)}>
-                                                                            Ver más
-                                                                        </button>
+                                                                        {
+                                                                            it.link ?
+                                                                                <button className="text-blue-400 cursor-pointer hover:underline transition-all" onClick={() => redirectLink(it.link)}>
+                                                                                    Ver más
+                                                                                </button> : <></>
+                                                                        }
                                                                     </div>
                                                                     <TableControls
                                                                         onDelete={() => deleteItinerary(it.id)}

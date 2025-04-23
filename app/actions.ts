@@ -2,9 +2,10 @@
 
 import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Itineraries, Itinerary } from "@/lib/types";
+import { randomUUID } from "crypto";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -134,8 +135,10 @@ export const signOutAction = async () => {
   return redirect("/sign-in");
 };
 
+// Itineraries
 export const addItineraryAction = async (formData: FormData) => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   const date = formData.get("date")?.toString();
   const ISODate = new Date(date!).toISOString();
@@ -143,13 +146,14 @@ export const addItineraryAction = async (formData: FormData) => {
   const parseDate = `${day}/${month}/${year.slice(-2)}`;
 
   const description = formData.get("description")?.toString();
-  const link = formData.get("link")?.toString();
+  const link = formData.get("link")?.toString() || "";
 
   try {
     await supabase.from("itineraries").insert({
       date: parseDate,
       description,
       link,
+      reference_id: reference_id?.value,
     });
   } catch (error) {
     return error;
@@ -158,11 +162,13 @@ export const addItineraryAction = async (formData: FormData) => {
 
 export const getItinerariesAction = async () => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   try {
     const { data } = await supabase
       .from("itineraries")
-      .select()
+      .select("*")
+      .eq("reference_id", reference_id?.value)
       .order("date", { ascending: true });
 
     const dbItineraries = data as Itinerary[];
@@ -228,11 +234,16 @@ export const editItineraryAction = async (formData: FormData, id: number) => {
   }
 };
 
+// Expenses
 export const getExpensesAction = async () => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   try {
-    const { data } = await supabase.from("expenses").select();
+    const { data } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("reference_id", reference_id?.value);
 
     return data;
   } catch (error) {
@@ -242,6 +253,7 @@ export const getExpensesAction = async () => {
 
 export const addExpenseAction = async (formData: FormData) => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   const detail = formData.get("detail")?.toString();
   const amount = formData.get("amount")?.toString();
@@ -250,6 +262,7 @@ export const addExpenseAction = async (formData: FormData) => {
     await supabase.from("expenses").insert({
       detail,
       amount,
+      reference_id: reference_id?.value,
     });
   } catch (error) {
     return error;
@@ -285,11 +298,16 @@ export const deleteExpenseAction = async (id: number) => {
   }
 };
 
+// Persons
 export const getPersonsAction = async () => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   try {
-    const { data } = await supabase.from("persons").select();
+    const { data } = await supabase
+      .from("persons")
+      .select("*")
+      .eq("reference_id", reference_id?.value);
 
     return data;
   } catch (error) {
@@ -299,6 +317,7 @@ export const getPersonsAction = async () => {
 
 export const addPersonAction = async (formData: FormData) => {
   const supabase = await createClient();
+  const reference_id = await getCookie("id");
 
   const name = formData.get("name")?.toString();
   const amount = formData.get("amount")?.toString();
@@ -307,6 +326,7 @@ export const addPersonAction = async (formData: FormData) => {
     await supabase.from("persons").insert({
       name,
       amount,
+      reference_id: reference_id?.value,
     });
   } catch (error) {
     return error;
@@ -340,4 +360,37 @@ export const deletePersonAction = async (id: number) => {
   } catch (error) {
     return error;
   }
+};
+
+export const initAction = async (formData: FormData) => {
+  const cookieStore = await cookies();
+  const supabase = await createClient();
+
+  const id = formData.get("id") as string;
+
+  let uuid = "";
+
+  try {
+    const { data } = await supabase.from("ids").select("uuid").eq("uuid", id);
+
+    uuid = data?.length ? data[0].uuid : "";
+
+    if (!data) {
+      const response = await supabase
+        .from("ids")
+        .insert({
+          uuid: randomUUID(),
+        })
+        .select();
+      uuid = response.data![0]!.uuid;
+    }
+  } catch (error) {}
+
+  cookieStore.set("id", uuid);
+  return redirect(`/protected/${uuid}`);
+};
+
+const getCookie = async (key: string) => {
+  const cookieStore = await cookies();
+  return cookieStore.get(key);
 };

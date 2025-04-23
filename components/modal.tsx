@@ -45,7 +45,7 @@ const Modal = ({ open, closeModal, onSubmit, itinerary }: ModalProps) => {
                                         type="text"
                                         id="link"
                                         name="link"
-                                        required />
+                                    />
                                 </p>
                                 <p className='flex justify-center items-center'>
                                     <button
