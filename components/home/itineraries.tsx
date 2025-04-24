@@ -53,8 +53,7 @@ const ItinerariesComponent = () => {
                     schema: 'public',
                     table: 'itineraries',
                 },
-                (payload) => {
-                    console.log(payload)
+                () => {
                     getItineraries()
                 }
             )
