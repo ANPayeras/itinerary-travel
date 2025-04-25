@@ -61,7 +61,7 @@ const Expenses = () => {
     }
 
     const calculate = () => {
-        const totalCost = sumExpenses(expenses).replace(',', '.')
+        const totalCost = sumExpenses(expenses).replace(',', '')
         const totalCostNumber = Number(totalCost.slice(1))
         const rest = totalCostNumber / persons.length
         const arr = [...persons]
