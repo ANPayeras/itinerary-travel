@@ -382,22 +382,20 @@ export const initAction = async (formData: FormData) => {
   return redirect(`/protected/${uuid}`);
 };
 
-export const createAction = async (formData: FormData, create: boolean) => {
+export const createAction = async (formData: FormData) => {
   const cookieStore = await cookies();
   const supabase = await createClient();
+  const name = formData.get("name")?.toString();
 
-  if (create) {
-    const response = await supabase
-      .from("ids")
-      .insert({
-        uuid: randomUUID(),
-      })
-      .select();
-    cookieStore.set("id", response.data![0]!.uuid);
-    return redirect(`/protected/${response.data![0]!.uuid}`);
-  }
-
-  return redirect("/sign-in");
+  const response = await supabase
+    .from("ids")
+    .insert({
+      uuid: randomUUID(),
+      name,
+    })
+    .select();
+  cookieStore.set("id", response.data![0]!.uuid);
+  return redirect(`/protected/${response.data![0]!.uuid}`);
 };
 
 const getCookie = async (key: string) => {
@@ -408,4 +406,19 @@ const getCookie = async (key: string) => {
 export const deleteCookie = async (key: string) => {
   const cookieStore = await cookies();
   cookieStore.delete(key);
+};
+
+export const getInitData = async () => {
+  const supabase = await createClient();
+  const id = await getCookie("id");
+
+  try {
+    const { data } = await supabase
+      .from("ids")
+      .select("*")
+      .eq("uuid", id?.value);
+    return data?.length && data[0];
+  } catch (error) {
+    console.log(error);
+  }
 };

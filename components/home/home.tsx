@@ -1,17 +1,21 @@
 "use client"
 
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from "framer-motion";
 import Expenses from './expenses';
 import ItinerariesComponent from './itineraries';
 import { useParams, useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
-import { deleteCookie } from '@/app/actions';
+import { deleteCookie, getInitData } from '@/app/actions';
+import Loader from '../loader';
+import { Ids } from '@/lib/types';
 
 const Home = () => {
     const { id } = useParams()
     const router = useRouter()
     const [type, setType] = useState('itineraries')
+    const [loading, setLoading] = useState(true)
+    const [data, setData] = useState<Ids>()
 
     const comp: { [key: string]: ReactNode } = {
         itineraries:
@@ -49,11 +53,24 @@ const Home = () => {
         router.refresh()
     }
 
+    const getData = async () => {
+        setLoading(true)
+        const data = await getInitData()
+        setData(data)
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        getData()
+    }, [])
+
     return (
         <div className="container px-2 md:px-8 py-8 h-full flex flex-col justify-center max-w-[1000px] gap-5 text-sm md:text-base">
             <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between items-center border-b-2 pb-2">
                 <div className='text-center md:text-left'>
-                    <h1>Itinerario - Mallorca 2025</h1>
+                    {
+                        loading ? <Loader /> : <h1>Itinerario - {data?.name}</h1>
+                    }
                     <h6 className='text-xs'>ID: {id}</h6>
                 </div>
                 <div className="flex justify-center items-center gap-2">

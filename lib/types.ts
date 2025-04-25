@@ -1,3 +1,5 @@
+import { UUID } from "crypto";
+
 export type Itinerary = {
   created_at: Date;
   date: string;
@@ -35,6 +37,13 @@ export type Persons = {
   diff?: number;
   text?: string;
   bgColor?: string;
+};
+
+export type Ids = {
+  uuid: UUID;
+  created_at: string;
+  name: string;
+  id: number;
 };
 
 export interface ModalEditData extends Persons, Expense {
