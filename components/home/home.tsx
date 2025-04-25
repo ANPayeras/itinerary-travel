@@ -4,10 +4,13 @@ import React, { ReactNode, useState } from 'react'
 import { AnimatePresence, motion } from "framer-motion";
 import Expenses from './expenses';
 import ItinerariesComponent from './itineraries';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
+import { deleteCookie } from '@/app/actions';
 
 const Home = () => {
     const { id } = useParams()
+    const router = useRouter()
     const [type, setType] = useState('itineraries')
 
     const comp: { [key: string]: ReactNode } = {
@@ -41,6 +44,11 @@ const Home = () => {
             </motion.div>,
     }
 
+    const signOut = async () => {
+        await deleteCookie('id')
+        router.refresh()
+    }
+
     return (
         <div className="container px-2 md:px-8 py-8 h-full flex flex-col justify-center max-w-[1000px] gap-5 text-sm md:text-base">
             <div className="flex flex-col gap-2 md:gap-0 md:flex-row justify-between items-center border-b-2 pb-2">
@@ -62,6 +70,12 @@ const Home = () => {
                         onClick={() => setType('expenses')}
                     >
                         Gastos
+                    </button>
+                    <button
+                        className='absolute flex items-center justify-center top-1 right-1 md:static hover:scale-105 transition-all'
+                        onClick={signOut}
+                    >
+                        <LogOut size={20} />
                     </button>
                 </div>
             </div>

@@ -370,27 +370,49 @@ export const initAction = async (formData: FormData) => {
 
   let uuid = "";
 
-  try {
-    const { data } = await supabase.from("ids").select("uuid").eq("uuid", id);
+  const { data } = await supabase.from("ids").select("uuid").eq("uuid", id);
 
-    uuid = data?.length ? data[0].uuid : "";
+  uuid = data?.length ? data[0].uuid : "";
 
-    if (!data) {
-      const response = await supabase
-        .from("ids")
-        .insert({
-          uuid: randomUUID(),
-        })
-        .select();
-      uuid = response.data![0]!.uuid;
-    }
-  } catch (error) {}
+  if (!data) {
+    // const response = await supabase
+    //   .from("ids")
+    //   .insert({
+    //     uuid: randomUUID(),
+    //   })
+    //   .select();
+    // uuid = response.data![0]!.uuid;
+    return encodedRedirect("error", "/sign-in", "not-found");
+  }
 
   cookieStore.set("id", uuid);
   return redirect(`/protected/${uuid}`);
 };
 
+export const createAction = async (formData: FormData, create: boolean) => {
+  const cookieStore = await cookies();
+  const supabase = await createClient();
+
+  if (create) {
+    const response = await supabase
+      .from("ids")
+      .insert({
+        uuid: randomUUID(),
+      })
+      .select();
+    cookieStore.set("id", response.data![0]!.uuid);
+    return redirect(`/protected/${response.data![0]!.uuid}`);
+  }
+
+  return redirect("/sign-in");
+};
+
 const getCookie = async (key: string) => {
   const cookieStore = await cookies();
   return cookieStore.get(key);
+};
+
+export const deleteCookie = async (key: string) => {
+  const cookieStore = await cookies();
+  cookieStore.delete(key);
 };
