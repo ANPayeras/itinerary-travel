@@ -375,13 +375,6 @@ export const initAction = async (formData: FormData) => {
   uuid = data?.length ? data[0].uuid : "";
 
   if (!data) {
-    // const response = await supabase
-    //   .from("ids")
-    //   .insert({
-    //     uuid: randomUUID(),
-    //   })
-    //   .select();
-    // uuid = response.data![0]!.uuid;
     return encodedRedirect("error", "/sign-in", "not-found");
   }
 
