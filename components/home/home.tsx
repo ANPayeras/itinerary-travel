@@ -73,7 +73,7 @@ const Home = () => {
                     }
                     <h6 className='text-xs'>ID: {id}</h6>
                 </div>
-                <div className="flex justify-center items-center gap-2">
+                <div className="flex justify-center items-center gap-2 text-white">
                     <button
                         className='cursor-pointer px-2 py-1 border rounded-sm hover:scale-105 hover:bg-black hover:bg-opacity-35 transition-all'
                         style={{ backgroundColor: type === 'itineraries' ? 'black' : '' }}

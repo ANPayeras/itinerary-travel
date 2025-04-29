@@ -109,7 +109,7 @@ const ItinerariesComponent = () => {
                     </button>
                 </div>
             </div>
-            <div className="max-h-[500px] overflow-hidden overflow-y-scroll rounded-sm border">
+            <div className="max-h-[500px] overflow-hidden overflow-y-scroll rounded-sm border text-white">
                 {
                     loading ?
                         <div className='bg-black bg-opacity-40 w-full flex justify-center items-center p-10'>
